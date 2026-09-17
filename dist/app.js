@@ -101,7 +101,7 @@ function invalidate() {
   variants = [];
   $("permutation-results").className = "permutation-results";
   $("permutation-results").innerHTML =
-    '<div class="empty-orbit" aria-hidden="true"><span>P1</span><span>P2</span><span>P3</span><span>P4</span></div><h3>Order is an experiment.</h3><p>One click. Every possibility.<br>Up to 720 permutations, ranked by average waiting.</p>';
+    '<div class="empty-orbit" aria-hidden="true"><span>P1</span><span>P2</span><span>P3</span><span>P4</span></div><h3>Compare job permutations.</h3><p>Explore up to 720 permutations, ranked by average waiting.</p>';
 }
 function update(patch, { editor = true, clear = true } = {}) {
   const next = { ...state, ...patch };
@@ -136,7 +136,7 @@ function renderEditorMetadata() {
     `${state.jobs.reduce((n, j) => n + j.burst, 0)} ticks`;
   $("scenario-description").textContent =
     scenarios[state.scenario]?.description ??
-    "Your own experiment. Change a number and watch the schedule respond.";
+    "Custom workload. Edit arrivals, burst lengths, or deadlines to recalculate.";
   document
     .querySelectorAll("[data-scenario]")
     .forEach((button) =>

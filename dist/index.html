@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#122b2b" />
     <meta
       name="description"
-      content="Make time for a little experimentation. Compare six CPU scheduling strategies, remix workloads, and explore every permutation in Dispatch by cronfm."
+      content="Compare six CPU scheduling strategies, edit workloads, and explore how job order affects waiting time in Dispatch by cronfm."
     />
     <link
       rel="canonical"
@@ -15,7 +15,7 @@
     <meta property="og:title" content="Dispatch · Scheduling playground" />
     <meta
       property="og:description"
-      content="Six strategies. One CPU. Explore the possibilities."
+      content="Compare CPU schedules, waiting times, and missed deadlines across six strategies."
     />
     <meta
       property="og:url"
@@ -36,7 +36,7 @@
           class="brand-dot"
           >.</span
         ></a
-      ><span class="top-label">A LITTLE LAB FOR BIG SCHEDULING IDEAS</span
+      ><span class="top-label">CPU SCHEDULING, COMPARED</span
       ><a
         class="source-link"
         href="https://github.com/cronfm/scheduling-showcase"
@@ -61,10 +61,10 @@
           <div class="eyebrow">
             <span class="live-dot"></span> THE SCHEDULING PLAYGROUND
           </div>
-          <h1>Same jobs.<br /><span>Different possibilities.</span></h1>
+          <h1>Compare schedules.<br /><span>Trace every decision.</span></h1>
           <p>
-            Six strategies. One CPU. A thousand ways to ask <em>“what if?”</em
-            ><br />Remix the workload and watch the tradeoffs unfold.
+            Edit arrival times, CPU bursts, and deadlines.<br />Compare waiting
+            time and response across six scheduling strategies.
           </p>
         </div>
         <div class="intro-aside">
@@ -174,11 +174,11 @@
       <section class="comparison section-block">
         <div class="section-title">
           <div>
-            <span class="section-number">03 / THE BIGGER PICTURE</span>
-            <h2>Let the strategies compete.</h2>
+            <span class="section-number">03 / STRATEGY COMPARISON</span>
+            <h2>Compare all six strategies.</h2>
           </div>
           <p>
-            Same workload. All six approaches.<br />Lower is better for waiting
+            Each row uses your current workload.<br />Lower is better for waiting
             and response.
           </p>
         </div>
@@ -200,11 +200,11 @@
       </section>
       <section class="permutation section-block">
         <div class="permutation-intro">
-          <span class="section-number">04 / THE WHAT-IF MACHINE</span>
-          <h2>A small change.<br />A different outcome.</h2>
+          <span class="section-number">04 / JOB ORDER</span>
+          <h2>How job order<br />changes waiting time.</h2>
           <p>
-            Explore every unique permutation. Find out how much the order really
-            matters.
+            Reorder jobs or reassign arrival times, then rank every unique
+            permutation.
           </p>
           <div class="permutation-controls">
             <label
@@ -226,9 +226,9 @@
           <div class="empty-orbit" aria-hidden="true">
             <span>P1</span><span>P2</span><span>P3</span><span>P4</span>
           </div>
-          <h3>Order is an experiment.</h3>
+          <h3>Compare job permutations.</h3>
           <p>
-            One click. Every possibility.<br />Up to 720 permutations, ranked by
+            Explore up to 720 permutations, ranked by
             average waiting.
           </p>
         </div>
