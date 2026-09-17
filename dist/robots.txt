@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cronfm-scheduling.cronfm.chatgpt.site/sitemap.xml

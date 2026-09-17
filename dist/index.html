@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#122b2b" />
+    <meta
+      name="description"
+      content="Make time for a little experimentation. Compare six CPU scheduling strategies, remix workloads, and explore every permutation in Dispatch by cronfm."
+    />
+    <link
+      rel="canonical"
+      href="https://cronfm-scheduling.cronfm.chatgpt.site/"
+    />
+    <meta property="og:title" content="Dispatch · Scheduling playground" />
+    <meta
+      property="og:description"
+      content="Six strategies. One CPU. Explore the possibilities."
+    />
+    <meta
+      property="og:url"
+      content="https://cronfm-scheduling.cronfm.chatgpt.site/"
+    />
+    <meta property="og:type" content="website" />
+    <title>Dispatch · Scheduling playground by cronfm</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#playground">Skip to playground</a>
+    <header class="topbar">
+      <a class="wordmark" href="./" aria-label="Dispatch home"
+        ><span class="mark" aria-hidden="true">▥</span> dispatch<span
+          class="brand-dot"
+          >.</span
+        ></a
+      ><span class="top-label">A LITTLE LAB FOR BIG SCHEDULING IDEAS</span
+      ><a
+        class="source-link"
+        href="https://github.com/cronfm/scheduling-showcase"
+        target="_blank"
+        rel="noopener noreferrer"
+        ><svg
+          viewBox="0 0 24 24"
+          width="19"
+          height="19"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.8-1.33-3.8-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.71 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.5-.29-5.12-1.25-5.12-5.57 0-1.23.44-2.23 1.16-3.02-.12-.29-.5-1.43.11-2.98 0 0 .95-.3 3.08 1.15a10.7 10.7 0 0 1 5.61 0c2.14-1.45 3.08-1.15 3.08-1.15.62 1.55.23 2.69.11 2.98.73.79 1.16 1.79 1.16 3.02 0 4.33-2.62 5.28-5.13 5.56.4.35.76 1.03.76 2.08v3.11c0 .3.2.65.77.54A11.2 11.2 0 0 0 12 .8Z"
+          /></svg
+        ><span>View source</span> ↗</a
+      >
+    </header>
+    <main id="playground">
+      <section class="intro">
+        <div>
+          <div class="eyebrow">
+            <span class="live-dot"></span> THE SCHEDULING PLAYGROUND
+          </div>
+          <h1>Same jobs.<br /><span>Different possibilities.</span></h1>
+          <p>
+            Six strategies. One CPU. A thousand ways to ask <em>“what if?”</em
+            ><br />Remix the workload and watch the tradeoffs unfold.
+          </p>
+        </div>
+        <div class="intro-aside">
+          <span class="scribble" aria-hidden="true">↴</span>
+          <p>Start with a scenario.<br />Then make it your own.</p>
+        </div>
+      </section>
+      <section class="scenario-bar" aria-label="Workload scenarios">
+        <span class="small-label">LOAD A SCENARIO</span>
+        <div id="scenarios" class="scenario-buttons"></div>
+        <button id="randomize" class="random-btn">⤨ Surprise me</button>
+      </section>
+      <div id="notice" role="status" class="notice" hidden></div>
+      <div class="workspace">
+        <section class="panel workload">
+          <div class="panel-heading">
+            <div>
+              <span class="section-number">01 / THE INPUT</span>
+              <h2>Your workload</h2>
+            </div>
+            <span id="job-count" class="pill"></span>
+          </div>
+          <p class="muted" id="scenario-description"></p>
+          <div class="editor-scroll">
+            <table class="job-editor">
+              <thead>
+                <tr>
+                  <th scope="col">Job</th>
+                  <th scope="col">Arrival</th>
+                  <th scope="col">Burst</th>
+                  <th scope="col">Deadline</th>
+                  <th scope="col"><span class="sr-only">Remove</span></th>
+                </tr>
+              </thead>
+              <tbody id="jobs"></tbody>
+            </table>
+          </div>
+          <div class="editor-footer">
+            <button id="add-job" class="text-btn">＋ Add a job</button
+            ><button id="reset" class="text-btn quiet">Reset</button>
+          </div>
+          <div class="field-note">
+            All values are ticks. Leave a deadline blank for no limit. Up to six
+            jobs.
+          </div>
+          <div class="workload-total">
+            <span>Total CPU work</span><strong id="total-work"></strong>
+          </div>
+        </section>
+        <section class="simulation">
+          <div class="strategy-area">
+            <div class="strategy-header">
+              <div>
+                <span class="section-number">02 / THE APPROACH</span>
+                <h2>Pick your strategy</h2>
+              </div>
+              <span id="strategy-type" class="pill"></span>
+            </div>
+            <div
+              id="strategies"
+              class="strategy-tabs"
+              role="group"
+              aria-label="Scheduling strategy"
+            ></div>
+            <div class="strategy-details">
+              <p id="strategy-description"></p>
+              <label id="quantum-control" class="quantum" hidden
+                >Quantum
+                <input id="quantum" type="number" min="1" max="20" value="3" />
+                ticks</label
+              >
+            </div>
+          </div>
+          <div class="timeline-panel">
+            <div class="timeline-heading">
+              <div>
+                <span class="section-number">LIVE DISPATCH</span>
+                <h3 id="timeline-title">The shape of your schedule</h3>
+              </div>
+              <span id="clock" class="clock"></span>
+            </div>
+            <div class="timeline-scroll">
+              <div id="timeline" class="timeline-chart"></div>
+            </div>
+            <div class="playback">
+              <button id="play" class="play-btn" aria-label="Play schedule">
+                ▶ <span>Replay</span></button
+              ><button id="step" class="step-btn" aria-label="Advance one tick">
+                Step →</button
+              ><input
+                id="scrubber"
+                type="range"
+                min="0"
+                value="0"
+                aria-label="Timeline playback position"
+              /><span id="running-job" class="running-job"></span>
+            </div>
+            <p class="timeline-note">
+              Solid = running · dashed = ready & waiting · single CPU, zero
+              switch cost
+            </p>
+          </div>
+          <div id="metrics" class="metrics"></div>
+        </section>
+      </div>
+      <section class="comparison section-block">
+        <div class="section-title">
+          <div>
+            <span class="section-number">03 / THE BIGGER PICTURE</span>
+            <h2>Let the strategies compete.</h2>
+          </div>
+          <p>
+            Same workload. All six approaches.<br />Lower is better for waiting
+            and response.
+          </p>
+        </div>
+        <div class="comparison-scroll">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Strategy</th>
+                <th>Schedule</th>
+                <th>Avg. waiting</th>
+                <th>Avg. response</th>
+                <th>Missed deadlines</th>
+                <th>Switches</th>
+              </tr>
+            </thead>
+            <tbody id="comparisons"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="permutation section-block">
+        <div class="permutation-intro">
+          <span class="section-number">04 / THE WHAT-IF MACHINE</span>
+          <h2>A small change.<br />A different outcome.</h2>
+          <p>
+            Explore every unique permutation. Find out how much the order really
+            matters.
+          </p>
+          <div class="permutation-controls">
+            <label
+              >Change the
+              <select id="permutation-mode">
+                <option value="order">queue / tie order</option>
+                <option value="arrival">arrival assignment</option>
+              </select></label
+            ><button id="explore" class="primary-btn">
+              Explore permutations <span>↗</span>
+            </button>
+          </div>
+          <p class="field-note" id="permutation-help">
+            Reorder the jobs to change simultaneous-arrival and priority ties.
+            Arrival times stay with each job.
+          </p>
+        </div>
+        <div id="permutation-results" class="permutation-results">
+          <div class="empty-orbit" aria-hidden="true">
+            <span>P1</span><span>P2</span><span>P3</span><span>P4</span>
+          </div>
+          <h3>Order is an experiment.</h3>
+          <p>
+            One click. Every possibility.<br />Up to 720 permutations, ranked by
+            average waiting.
+          </p>
+        </div>
+      </section>
+      <details class="details section-block">
+        <summary>
+          Under the hood <span>How the model works + per-job results</span>
+        </summary>
+        <div class="details-body">
+          <p>
+            One CPU, discrete integer ticks, known burst lengths, and no
+            context-switch overhead. FCFS and SJF run a job to completion. SRTF,
+            EDF and LLF reconsider every tick. Equal priorities break by
+            arrival, then the order in your workload. Round Robin queues
+            arrivals at a slice boundary before requeuing the running job.
+          </p>
+          <p>
+            <strong>Waiting</strong> = completion − arrival − burst.
+            <strong>Turnaround</strong> = completion − arrival.
+            <strong>Response</strong> = first start − arrival. A deadline is
+            missed only when completion is later than the deadline. Missing
+            deadlines have infinite priority. Switches count direct changes
+            between jobs; idle transitions are excluded.
+          </p>
+          <div class="comparison-scroll">
+            <table class="job-results">
+              <thead>
+                <tr>
+                  <th>Job</th>
+                  <th>First start</th>
+                  <th>Completion</th>
+                  <th>Waiting</th>
+                  <th>Turnaround</th>
+                  <th>Response</th>
+                  <th>Late by</th>
+                </tr>
+              </thead>
+              <tbody id="job-results"></tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+      <footer>
+        <a
+          class="wordmark"
+          href="https://cronfm.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Built by cronfm <span>↗</span></a
+        >
+        <p>
+          Adapted from a C# scheduling project.<br />Made for curiosity.
+          Everything runs in your browser.
+        </p>
+        <button id="share" class="text-btn">Copy experiment link ↗</button>
+      </footer>
+    </main>
+  </body>
+</html>
