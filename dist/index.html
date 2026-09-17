@@ -10,7 +10,7 @@
     />
     <link
       rel="canonical"
-      href="https://cronfm-scheduling.cronfm.chatgpt.site/"
+      href="https://scheduling.cronfm.com/"
     />
     <meta property="og:title" content="Dispatch · Scheduling playground" />
     <meta
@@ -19,13 +19,14 @@
     />
     <meta
       property="og:url"
-      content="https://cronfm-scheduling.cronfm.chatgpt.site/"
+      content="https://scheduling.cronfm.com/"
     />
     <meta property="og:type" content="website" />
     <title>Dispatch · Scheduling playground by cronfm</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./style.css" />
     <script type="module" src="./app.js"></script>
+    <script type="module" src="./source-viewer.js"></script>
   </head>
   <body>
     <a class="skip" href="#playground">Skip to playground</a>
@@ -69,6 +70,7 @@
         <div class="intro-aside">
           <span class="scribble" aria-hidden="true">↴</span>
           <p>Start with a scenario.<br />Then make it your own.</p>
+          <a class="source-jump" href="#csharp">Explore the C# behind it ↓</a>
         </div>
       </section>
       <section class="scenario-bar" aria-label="Workload scenarios">
@@ -231,6 +233,27 @@
           </p>
         </div>
       </section>
+      <section id="csharp" class="source-section section-block" aria-labelledby="source-heading">
+        <div class="source-intro">
+          <span class="section-number">05 / FROM C# TO THE CANVAS</span>
+          <h2 id="source-heading">The code behind<br />the choices.</h2>
+          <p>This playground began as my C# scheduling project. Explore the refactored strategy classes, immutable process model, and shared scheduling loop right here.</p>
+          <div class="source-runtime"><strong>C# / .NET 10</strong><span>Core library + console runner</span></div>
+          <p class="field-note">The interactive demo uses a matching JavaScript engine in your browser. Both implementations are checked against the same workloads. Cloudflare Workers serves the site.</p>
+          <a class="text-btn" href="https://github.com/cronfm/scheduling-showcase/tree/main/csharp" target="_blank" rel="noopener noreferrer">Explore the C# project ↗</a>
+          <a class="text-btn" href="https://cronfm.com/work/scheduling" target="_blank" rel="noopener noreferrer">Read the case study ↗</a>
+        </div>
+        <div class="source-reader">
+          <div class="source-toolbar">
+            <label for="source-select">Explore the implementation</label>
+            <select id="source-select" disabled></select>
+          </div>
+          <p id="source-description" class="source-description">Loading the C# implementation…</p>
+          <div class="source-filebar"><span id="source-filename">SchedulingShowcase.Core</span><button type="button" id="copy-source" disabled>Copy C#</button></div>
+          <pre tabindex="0" aria-label="C# source code"><code>Loading source…</code></pre>
+          <div class="source-bottom"><a id="source-file-link" href="https://github.com/cronfm/scheduling-showcase/tree/main/csharp" target="_blank" rel="noopener noreferrer">Open file on GitHub ↗</a><span id="source-status" role="status"></span></div>
+        </div>
+      </section>
       <details class="details section-block">
         <summary>
           Under the hood <span>How the model works + per-job results</span>
@@ -278,8 +301,8 @@
           >Built by cronfm <span>↗</span></a
         >
         <p>
-          Adapted from a C# scheduling project.<br />Made for curiosity.
-          Everything runs in your browser.
+          Built from my C# scheduling project.<br />Simulated in your browser.
+          Hosted on Cloudflare Workers.
         </p>
         <button id="share" class="text-btn">Copy experiment link ↗</button>
       </footer>

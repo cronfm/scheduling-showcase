@@ -11,3 +11,12 @@ jobs:
         with:
           node-version: "22"
       - run: npm test
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet build csharp/SchedulingShowcase.slnx --configuration Release
+      - run: dotnet run --project csharp/SchedulingShowcase.Tests --configuration Release --no-build
+      - run: npm run test:parity
+      - run: npm run build
+      - name: Verify source viewer matches compiled C# files
+        run: git diff --exit-code -- dist/csharp-source.json

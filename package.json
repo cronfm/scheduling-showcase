@@ -5,10 +5,16 @@
   "type": "module",
   "description": "An interactive CPU scheduling laboratory by cronfm",
   "scripts": {
+    "build": "node scripts/export-csharp.mjs",
     "start": "node server.mjs",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "test:parity": "node scripts/check-parity.mjs",
+    "deploy": "npm run build && wrangler deploy"
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "wrangler": "4.132.0"
   }
 }

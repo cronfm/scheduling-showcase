@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SchedulingShowcase.Core/SchedulingShowcase.Core.csproj" />
+  <Project Path="SchedulingShowcase.Console/SchedulingShowcase.Console.csproj" />
+  <Project Path="SchedulingShowcase.Tests/SchedulingShowcase.Tests.csproj" />
+</Solution>

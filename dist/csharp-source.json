@@ -1,0 +1,44 @@
+[
+  {
+    "name": "ProcessDefinition",
+    "label": "The input",
+    "description": "An immutable record preserves the original process model. Current list order, rather than Index, decides a tied priority.",
+    "path": "csharp/SchedulingShowcase.Core/ProcessDefinition.cs",
+    "code": "namespace SchedulingShowcase;\n\n// Original C# input shape retained. Index is metadata; current list order breaks ties.\npublic sealed record ProcessDefinition(\n    int Index,\n    string Name,\n    int ReadyTime,\n    int ExecutionTime,\n    int? Deadline);"
+  },
+  {
+    "name": "ISchedulingStrategy",
+    "label": "The contract",
+    "description": "Every algorithm implements one contract and returns the same timeline, job results and metrics.",
+    "path": "csharp/SchedulingShowcase.Core/ISchedulingStrategy.cs",
+    "code": "namespace SchedulingShowcase;\n\npublic interface ISchedulingStrategy\n{\n    string Id { get; }\n    string Name { get; }\n    ScheduleResult Schedule(IReadOnlyList<ProcessDefinition> processes, int quantum = 3);\n}"
+  },
+  {
+    "name": "ShortestJobFirstStrategy",
+    "label": "Choose the shortest",
+    "description": "LINQ makes the policy explicit: burst length, then arrival, then workload order. Once selected, a job runs to completion.",
+    "path": "csharp/SchedulingShowcase.Core/ShortestJobFirstStrategy.cs",
+    "code": "namespace SchedulingShowcase;\n\npublic sealed class ShortestJobFirstStrategy : ISchedulingStrategy\n{\n    public string Id => \"sjf\";\n    public string Name => \"SJF (non-preemptive)\";\n\n    public ScheduleResult Schedule(IReadOnlyList<ProcessDefinition> processes, int quantum = 3)\n    {\n        var working = ProcessStateFactory.CreateWorkingSet(processes, quantum);\n        var timeline = new TimelineBuilder();\n        var time = 0;\n        var finished = 0;\n\n        while (finished < working.Count)\n        {\n            var ready = working.Where(process => !process.IsFinished && process.Definition.ReadyTime <= time).ToList();\n            if (ready.Count == 0)\n            {\n                timeline.IdleUntil(working.Where(process => !process.IsFinished)\n                    .Min(process => process.Definition.ReadyTime), ref time);\n                continue;\n            }\n            var next = ready.OrderBy(process => process.Definition.ExecutionTime)\n                .ThenBy(process => process.Definition.ReadyTime).ThenBy(process => process.Rank).First();\n            timeline.Run(next, next.Remaining, ref time);\n            finished++;\n        }\n        return ScheduleResultFactory.Create(Id, quantum, working, timeline, time);\n    }\n}"
+  },
+  {
+    "name": "PreemptiveStrategy",
+    "label": "Share the mechanism",
+    "description": "SRTF, EDF and LLF supply a priority function to this shared tick-by-tick scheduling loop.",
+    "path": "csharp/SchedulingShowcase.Core/PreemptiveStrategy.cs",
+    "code": "namespace SchedulingShowcase;\n\ninternal sealed class PreemptiveStrategy(string id, string name, Func<ProcessState, int, double> priority)\n    : ISchedulingStrategy\n{\n    private readonly Func<ProcessState, int, double> _priority = priority ?? throw new ArgumentNullException(nameof(priority));\n    public string Id { get; } = id ?? throw new ArgumentNullException(nameof(id));\n    public string Name { get; } = name ?? throw new ArgumentNullException(nameof(name));\n\n    public ScheduleResult Schedule(IReadOnlyList<ProcessDefinition> processes, int quantum = 3)\n    {\n        var working = ProcessStateFactory.CreateWorkingSet(processes, quantum);\n        var timeline = new TimelineBuilder();\n        var time = 0;\n        var finished = 0;\n\n        while (finished < working.Count)\n        {\n            var ready = working.Where(process => !process.IsFinished && process.Definition.ReadyTime <= time).ToList();\n            if (ready.Count == 0)\n            {\n                timeline.IdleUntil(working.Where(process => !process.IsFinished)\n                    .Min(process => process.Definition.ReadyTime), ref time);\n                continue;\n            }\n            var current = ready.OrderBy(process => _priority(process, time))\n                .ThenBy(process => process.Definition.ReadyTime).ThenBy(process => process.Rank).First();\n            timeline.Run(current, 1, ref time);\n            if (current.IsFinished) finished++;\n        }\n        return ScheduleResultFactory.Create(Id, quantum, working, timeline, time);\n    }\n}"
+  },
+  {
+    "name": "RoundRobinStrategy",
+    "label": "Take turns",
+    "description": "A FIFO queue controls time slices. New arrivals enter before the running job returns to the queue.",
+    "path": "csharp/SchedulingShowcase.Core/RoundRobinStrategy.cs",
+    "code": "namespace SchedulingShowcase;\n\npublic sealed class RoundRobinStrategy : ISchedulingStrategy\n{\n    public string Id => \"rr\";\n    public string Name => \"Round Robin\";\n\n    public ScheduleResult Schedule(IReadOnlyList<ProcessDefinition> processes, int quantum = 3)\n    {\n        var working = ProcessStateFactory.CreateWorkingSet(processes, quantum);\n        var timeline = new TimelineBuilder();\n        var time = 0;\n        var finished = 0;\n        var queue = new Queue<ProcessState>();\n        // Includes the running job until it finishes, preventing duplicate admission.\n        var admitted = new HashSet<string>(StringComparer.Ordinal);\n\n        void EnqueueReady()\n        {\n            foreach (var process in working.Where(process => !process.IsFinished &&\n                         process.Definition.ReadyTime <= time && admitted.Add(process.Definition.Name)))\n                queue.Enqueue(process);\n        }\n\n        EnqueueReady();\n        while (finished < working.Count)\n        {\n            if (queue.Count == 0)\n            {\n                timeline.IdleUntil(working.Where(process => !process.IsFinished)\n                    .Min(process => process.Definition.ReadyTime), ref time);\n                EnqueueReady();\n                continue;\n            }\n            var current = queue.Dequeue();\n            var slice = Math.Min(quantum, current.Remaining);\n            for (var step = 0; step < slice; step++)\n            {\n                timeline.Run(current, 1, ref time);\n                // Boundary arrivals are admitted before the current job is requeued.\n                EnqueueReady();\n                if (!current.IsFinished) continue;\n                finished++;\n                admitted.Remove(current.Definition.Name);\n                break;\n            }\n            if (!current.IsFinished) queue.Enqueue(current);\n        }\n        return ScheduleResultFactory.Create(Id, quantum, working, timeline, time);\n    }\n}"
+  },
+  {
+    "name": "ProcessState",
+    "label": "Measure the result",
+    "description": "Waiting subtracts execution time from turnaround. Keeping the measures separate makes the tradeoffs visible.",
+    "path": "csharp/SchedulingShowcase.Core/ProcessState.cs",
+    "code": "namespace SchedulingShowcase;\n\npublic sealed class ProcessState(ProcessDefinition definition, int rank)\n{\n    public ProcessDefinition Definition { get; } = definition ?? throw new ArgumentNullException(nameof(definition));\n    public int Rank { get; } = rank;\n    public int Remaining { get; internal set; } = definition.ExecutionTime;\n    public int StartTime { get; internal set; } = -1;\n    public int CompletionTime { get; internal set; } = -1;\n    public bool IsFinished => Remaining == 0 && CompletionTime >= 0;\n    public int TurnaroundTime => CompletionTime - Definition.ReadyTime;\n    public int WaitingTime => TurnaroundTime - Definition.ExecutionTime;\n    public int ResponseTime => StartTime - Definition.ReadyTime;\n}"
+  }
+]

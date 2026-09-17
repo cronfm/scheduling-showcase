@@ -1,54 +1,71 @@
-# Dispatch · Scheduling playground
+# Dispatch · C# scheduling playground
 
-An interactive, browser-based CPU scheduling laboratory by **cronfm**.
+A C# scheduling project by **cronfm**, with an interactive browser companion.
 
-**[Open the playground](https://cronfm-scheduling.cronfm.chatgpt.site)**
+**[Try Dispatch](https://scheduling.cronfm.com)** · **[Read the case study](https://cronfm.com/work/scheduling)** · **[Explore the C#](csharp)**
 
-Edit a workload, choose a strategy, and see exactly where every CPU tick goes. Compare all six algorithms side by side, replay a schedule, or explore every unique ordering to find the best and worst outcomes.
+Compare six CPU scheduling strategies, remix workloads, and explore every unique ordering. Read the actual C# strategy classes in the source viewer, then run the .NET console project yourself.
+
+## C# first
+
+[`csharp/SchedulingShowcase.Core`](csharp/SchedulingShowcase.Core) is a .NET 10 library refactored from my original Scheduling project. It retains the strategy interface, six strategy classes, immutable process record, shared preemptive loop, and permutation helpers. Console formatting and JSON serialization live in a separate runner.
+
+```sh
+dotnet build csharp/SchedulingShowcase.slnx --configuration Release
+dotnet run --project csharp/SchedulingShowcase.Console --configuration Release --no-build
+dotnet run --project csharp/SchedulingShowcase.Tests --configuration Release --no-build
+```
+
+See the [C# README](csharp/README.md) for the public API, model decisions, and JSON interface. There are no third-party .NET dependencies. The original repository and its history remain private; only selected, refactored source is published here.
 
 ## Explore
 
-- **Six strategies:** FCFS, SJF, shortest remaining time (SRTF), Round Robin, earliest deadline first (EDF), and least laxity first (LLF).
-- **Five scenarios:** convoy effects, preemption, deadline pressure, idle gaps, and quantum tradeoffs.
-- **Editable jobs:** arrivals, bursts, optional deadlines, and Round Robin quantum.
-- **Visual timelines:** running intervals, waiting intervals, deadlines, playback, scrubbing, and single-tick stepping.
-- **Honest metrics:** waiting, response, turnaround, deadline misses, per-job results, and direct task switches.
-- **Exhaustive experiments:** queue/tie-order permutations or unique arrival-time assignments, ranked by average waiting. Apply a result directly to the workload.
-- **Shareable experiments:** workload and strategy are encoded in the URL fragment. No accounts, backend, analytics, or stored user data.
-- Responsive layouts, keyboard controls, readable text results, and optional feature-detected WebMCP tools.
+- Six strategies: FCFS, SJF, SRTF, Round Robin, EDF, and LLF.
+- Five scenarios: convoy effects, preemption, deadline pressure, idle gaps, and quantum tradeoffs.
+- Editable arrivals, bursts, optional deadlines, and Round Robin quantum.
+- Timelines, playback, waiting intervals, deadlines, per-job results, and side-by-side metrics.
+- Queue/tie-order or unique arrival-assignment permutations, up to 720 possibilities.
+- Shareable experiments encoded in the URL fragment. No accounts, analytics, backend data, or stored user workloads.
+- A source viewer generated directly from the compiled C# files, with copy controls and GitHub links.
+- Responsive layout, keyboard controls, and optional feature-detected WebMCP tools.
 
-## Run locally
+## Browser companion
 
-Requires Node.js 22 or later. There are **no package dependencies** and no build step.
+The interactive simulation executes JavaScript in the browser. C# runs in the local .NET project; it is not executed by the browser or Cloudflare Worker. Both engines share the same model and are compared against identical workloads in CI.
+
+Requires Node.js 22 or later:
 
 ```sh
-npm start
-# http://127.0.0.1:4173
+npm ci
+npm run build  # exports actual C# files to the source viewer
+npm start     # http://127.0.0.1:4173
 npm test
+npm run test:parity  # requires the Release .NET build above
 ```
 
-Serve the `dist/` directory on any static host. Relative asset paths also support deployment under a subdirectory. `.openai/hosting.json` identifies the public Sites deployment.
+The browser has no JavaScript runtime dependencies. Wrangler is a development/deployment dependency. `dist/engine.js` is pure and DOM-independent; `dist/app.js` owns presentation. Google Fonts supplies DM Sans and DM Mono, with system fallbacks.
 
-## Design and model
+## Deploy to Cloudflare Workers
 
-`dist/engine.js` is a pure, DOM-independent scheduling engine. `dist/app.js` owns presentation and interactions; both the visible controls and optional WebMCP actions use the same validation/update path. Tests use Node's built-in test runner.
+`wrangler.jsonc` deploys `dist/` using Workers Static Assets, with the custom domain **scheduling.cronfm.com**. It needs no KV, R2, D1, secrets, or server process. Unknown paths return 404; experiment state lives in the URL fragment.
 
-The model has one CPU, integer ticks, known execution lengths, and **zero context-switch overhead**. A smaller Round Robin quantum may increase task switches but cannot increase total CPU work in this model. This is an educational simulation, not a claim about real operating-system performance.
+```sh
+npx wrangler login
+npm run deploy
+```
 
-- FCFS and SJF are non-preemptive. SRTF, EDF and LLF select a job every tick.
-- Ties resolve by arrival, then the job's position in the current workload.
-- Round Robin admits arrivals at a quantum boundary before requeuing the current job.
-- Missing deadlines have infinite priority in EDF/LLF. Completion exactly at a deadline is on time.
+For Workers Builds, connect `cronfm/scheduling-showcase`, use the production branch `main`, root `/`, build command `npm run build`, and deploy command `npx wrangler deploy`. The Worker name must be `scheduling-showcase`. The checked-in account/domain configuration is for cronfm's account; change it before deploying a copy elsewhere.
+
+## Model and verification
+
+One CPU, integer ticks, known burst lengths, and zero context-switch overhead. This is an educational simulation, not an operating-system benchmark.
+
+- FCFS/SJF are non-preemptive. SRTF/EDF/LLF select a job every tick.
+- Ties resolve by arrival, then current workload position.
+- Round Robin admits boundary arrivals before requeuing the running job.
+- Missing deadlines have infinite priority. Completion exactly at a deadline is on time.
 - Waiting = completion − arrival − burst; turnaround = completion − arrival; response = first start − arrival.
-- Switches count a direct change between jobs, excluding transitions to or from idle.
-- Up to six jobs (720 order permutations), arrivals 0–40, bursts 1–30, deadlines 0–200, and quantum 1–20 keep exploration bounded. Arrival permutations are generated uniquely rather than deduplicated after factorial enumeration.
+- Switches count direct job-to-job changes, excluding idle transitions.
+- At most six jobs; arrivals 0–40, bursts 1–30, deadlines 0–200, quantum 1–20.
 
-## Relationship to the original project
-
-This is a clean public adaptation of the original private C# Scheduling project. It contains a browser-native refactor of its six algorithms and permutation experiments, with corrected waiting-time semantics, explicit input validation, safe missing-deadline behavior, and independent regression tests. The original repository and its history remain private; compiled binaries, IDE metadata, and private repository files are not included here.
-
-## Verification
-
-The test suite checks hand-worked timelines for every strategy, quantum-boundary arrivals, priority ties, absent deadlines, idle gaps, exact deadlines, unique permutations, invalid inputs, input immutability, and invariants over 200 deterministic workloads across all six strategies.
-
-Google Fonts supplies DM Sans and DM Mono when available; system fonts are the fallback. All scheduling runs locally in the browser.
+Node and C# regression suites check hand-worked timelines, boundaries, deadlines, idle gaps, validation, unique permutations, immutability, and deterministic workload invariants. The parity check compares **1,221 complete schedule results across 205 workloads**: timelines, job results, and aggregate metrics. CI also verifies that the source viewer matches the compiled C# files.

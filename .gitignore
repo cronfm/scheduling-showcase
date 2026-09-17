@@ -2,3 +2,10 @@ node_modules/
 .DS_Store
 *.log
 .openai/*.local.json
+.wrangler/
+**/bin/
+**/obj/
+.dotnet-home/
+.dev.vars*
+.env*
+work/
