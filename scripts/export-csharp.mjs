@@ -1,5 +1,9 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import Prism from "prismjs";
+import loadLanguages from "prismjs/components/index.js";
+
+loadLanguages(["csharp"]);
 
 // These are real compiled source files, not separately maintained examples.
 const sources = [
@@ -14,7 +18,8 @@ const root = new URL("../", import.meta.url);
 const entries = await Promise.all(sources.map(async ([name, label, description]) => {
   const path = `csharp/SchedulingShowcase.Core/${name}.cs`;
   const code = (await readFile(new URL(path, root), "utf8")).replaceAll("\r\n", "\n").trimEnd();
-  return { name, label, description, path, code };
+  const html = Prism.highlight(code, Prism.languages.csharp, "csharp");
+  return { name, label, description, path, code, html };
 }));
 await writeFile(new URL("dist/csharp-source.json", root), JSON.stringify(entries, null, 2) + "\n");
 console.log(`Exported ${entries.length} compiled C# source files to ${fileURLToPath(new URL("dist/csharp-source.json", root))}`);

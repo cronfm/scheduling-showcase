@@ -5,11 +5,15 @@ public sealed class FirstComeFirstServedStrategy : ISchedulingStrategy
     public string Id => "fcfs";
     public string Name => "FCFS (non-preemptive)";
 
-    public ScheduleResult Schedule(IReadOnlyList<ProcessDefinition> processes, int quantum = 3)
+    public ScheduleResult Schedule(
+        IReadOnlyList<ProcessDefinition> processes,
+        int quantum = 3)
     {
         var working = ProcessStateFactory.CreateWorkingSet(processes, quantum);
-        var ordered = working.OrderBy(process => process.Definition.ReadyTime)
-            .ThenBy(process => process.Rank).ToList();
+        var ordered = working
+            .OrderBy(process => process.Definition.ReadyTime)
+            .ThenBy(process => process.Rank)
+            .ToList();
         var timeline = new TimelineBuilder();
         var time = 0;
 

@@ -43,7 +43,7 @@ npm test
 npm run test:parity  # requires the Release .NET build above
 ```
 
-The browser has no JavaScript runtime dependencies. Wrangler is a development/deployment dependency. `dist/engine.js` is pure and DOM-independent; `dist/app.js` owns presentation. Google Fonts supplies DM Sans and DM Mono, with system fallbacks.
+The browser has no JavaScript runtime dependencies. Wrangler and Prism are build/deployment development dependencies. Prism generates the C# highlighting markup at build time, so it adds no browser runtime dependency. `dist/engine.js` is pure and DOM-independent; `dist/app.js` owns presentation. Google Fonts supplies DM Sans and DM Mono, with system fallbacks.
 
 ## Deploy to Cloudflare Workers
 
@@ -69,3 +69,7 @@ One CPU, integer ticks, known burst lengths, and zero context-switch overhead. T
 - At most six jobs; arrivals 0–40, bursts 1–30, deadlines 0–200, quantum 1–20.
 
 Node and C# regression suites check hand-worked timelines, boundaries, deadlines, idle gaps, validation, unique permutations, immutability, and deterministic workload invariants. The parity check compares **1,221 complete schedule results across 205 workloads**: timelines, job results, and aggregate metrics. CI also verifies that the source viewer matches the compiled C# files.
+
+## License
+
+Released under the [MIT License](LICENSE). Copyright © 2026 Frederik Cronjé.

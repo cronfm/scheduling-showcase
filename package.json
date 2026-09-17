@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "description": "An interactive CPU scheduling laboratory by cronfm",
+  "license": "MIT",
   "scripts": {
     "build": "node scripts/export-csharp.mjs",
     "start": "node server.mjs",
@@ -15,6 +16,7 @@
     "node": ">=22"
   },
   "devDependencies": {
+    "prismjs": "1.30.0",
     "wrangler": "4.132.0"
   }
 }

@@ -5,7 +5,9 @@ public sealed class RoundRobinStrategy : ISchedulingStrategy
     public string Id => "rr";
     public string Name => "Round Robin";
 
-    public ScheduleResult Schedule(IReadOnlyList<ProcessDefinition> processes, int quantum = 3)
+    public ScheduleResult Schedule(
+        IReadOnlyList<ProcessDefinition> processes,
+        int quantum = 3)
     {
         var working = ProcessStateFactory.CreateWorkingSet(processes, quantum);
         var timeline = new TimelineBuilder();
@@ -17,8 +19,11 @@ public sealed class RoundRobinStrategy : ISchedulingStrategy
 
         void EnqueueReady()
         {
-            foreach (var process in working.Where(process => !process.IsFinished &&
-                         process.Definition.ReadyTime <= time && admitted.Add(process.Definition.Name)))
+            foreach (var process in working
+                .Where(process =>
+                    !process.IsFinished
+                    && process.Definition.ReadyTime <= time
+                    && admitted.Add(process.Definition.Name)))
                 queue.Enqueue(process);
         }
 
@@ -27,8 +32,11 @@ public sealed class RoundRobinStrategy : ISchedulingStrategy
         {
             if (queue.Count == 0)
             {
-                timeline.IdleUntil(working.Where(process => !process.IsFinished)
-                    .Min(process => process.Definition.ReadyTime), ref time);
+                timeline.IdleUntil(
+                    working
+                        .Where(process => !process.IsFinished)
+                        .Min(process => process.Definition.ReadyTime),
+                    ref time);
                 EnqueueReady();
                 continue;
             }

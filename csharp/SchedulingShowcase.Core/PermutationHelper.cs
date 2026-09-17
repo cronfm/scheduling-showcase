@@ -6,11 +6,15 @@ public static class PermutationHelper
     {
         ArgumentNullException.ThrowIfNull(items);
         if (items.Count > SchedulingValidation.MaximumJobs)
-            throw new ArgumentException("Permutation exploration supports at most six items.", nameof(items));
+            throw new ArgumentException(
+                "Permutation exploration supports at most six items.",
+                nameof(items));
         return PermuteInternal(items.ToList(), 0);
     }
 
-    private static IEnumerable<IReadOnlyList<T>> PermuteInternal<T>(List<T> list, int start)
+    private static IEnumerable<IReadOnlyList<T>> PermuteInternal<T>(
+        List<T> list,
+        int start)
     {
         if (start == list.Count)
         {
@@ -22,7 +26,8 @@ public static class PermutationHelper
         {
             if (!seen.Add(list[i])) continue;
             (list[start], list[i]) = (list[i], list[start]);
-            foreach (var permutation in PermuteInternal(list, start + 1)) yield return permutation;
+            foreach (var permutation in PermuteInternal(list, start + 1))
+                yield return permutation;
             (list[start], list[i]) = (list[i], list[start]);
         }
     }

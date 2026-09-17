@@ -20,7 +20,10 @@ try {
   const show = () => {
     const entry = entries.find((item) => item.name === select.value);
     current = entry.code;
-    code.textContent = current;
+    // The build generates and escapes this markup from the actual C# files.
+    // Keep plain source separately so copying never includes highlighting tags.
+    if (entry.html) code.innerHTML = entry.html;
+    else code.textContent = current;
     filename.textContent = `${entry.name}.cs`;
     description.textContent = entry.description;
     sourceLink.href = `https://github.com/cronfm/scheduling-showcase/blob/main/${entry.path}`;

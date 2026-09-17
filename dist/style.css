@@ -1461,9 +1461,23 @@ select,
 .source-filebar { padding: 12px 20px; border-block: 1px solid #365045; display: flex; align-items: center; justify-content: space-between; gap: 12px; font: 12px "DM Mono", monospace; }
 .source-filebar span { min-width: 0; overflow-wrap: anywhere; }
 .source-filebar button { flex-shrink: 0; background: #daed9b; color: #172c24; border: 0; border-radius: 5px; padding: 8px 10px; font-size: 12px; }
-.source-reader pre { margin: 0; max-height: 480px; overflow: auto; padding: 24px 22px; tab-size: 4; font: 13px/1.75 "DM Mono", monospace; color: #daed9b; }
+.source-reader pre { margin: 0; max-height: 480px; overflow: auto; padding: 24px 22px; tab-size: 4; font: 13px/1.75 "DM Mono", monospace; color: #e6ece4; }
 .source-reader pre:focus-visible { outline: 3px solid #aba8e9; outline-offset: -3px; }
 .source-bottom { border-top: 1px solid #365045; min-height: 55px; padding: 16px 22px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; font-size: 12px; }
 .source-bottom a { text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 850px) { .source-section { grid-template-columns: minmax(0, 1fr); gap: 24px; } .source-description { min-height: 0; } .source-reader pre { max-height: 400px; font-size: 12px; padding: 20px 16px; } .source-toolbar, .source-filebar, .source-bottom { padding-inline: 16px; } .source-description { padding-inline: 16px; } }
 .source-jump { display: inline-block; margin-top: 8px; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 5px; }
+
+/* C# source colors are scoped to the reader, with neutral identifiers. */
+.source-reader .token.keyword { color: #c9b5ff; }
+.source-reader .token.class-name,
+.source-reader .token.namespace,
+.source-reader .token.builtin { color: #8ddce0; }
+.source-reader .token.function { color: #d6e9a2; }
+.source-reader .token.string,
+.source-reader .token.char { color: #f1b899; }
+.source-reader .token.number,
+.source-reader .token.boolean { color: #f5d585; }
+.source-reader .token.comment { color: #a7b8ad; font-style: italic; }
+.source-reader .token.operator,
+.source-reader .token.punctuation { color: #c5d1c9; }
